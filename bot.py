@@ -13,7 +13,7 @@ bot = telebot.TeleBot(TOKEN)
 user_answers = {}
 
 def playFourVariants(message):
-    getWord = GameMods.FourAnswClass(dbPath)
+    getWord = GameMods.BotGames(dbPath)
     user_answers[message.chat.id] = {
         'message_id': message.id,
         'true_answer': getWord.trueAnswer

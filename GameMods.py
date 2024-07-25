@@ -1,10 +1,10 @@
 import sqlite3
 import random
 import keyboard
-class FourAnswClass:
+class BotGames:
     def __init__(self, dbPath: str):
         self.__dbPath = dbPath
-        getTask = self.variantsPlay()
+        getTask = self.immortal_mode()
         self.__askedWord = getTask[0]
         self.__trueAnswer = getTask[1]
         self.__wrongAnswer1 = getTask[2]
@@ -50,9 +50,10 @@ class FourAnswClass:
         else:
             return "Слово не найдено."
 
-    def variantsPlay(self):
+    #################### GAME VARIANTS ######################
+    #################### SURVIVAL ######################
+    def immortal_mode(self):
         variants = []
-        ansVariants = []
         variantsId = self.get_four_unique_random_numbers(1, 5000)
         for id in variantsId:
             variants.append(self.get_word_and_translation_by_id(id))
