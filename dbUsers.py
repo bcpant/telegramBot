@@ -7,54 +7,76 @@ class Db:
         self.cursor = self.conn.cursor()
 
     def user_exists(self, user_id):
-        result = self.cursor.execute("SELECT `tguserid` FROM `user` WHERE `tguserid` = ?", (user_id,))
+        result = self.cursor.execute("SELECT `usertgid` FROM `users` WHERE `usertgid` = ?", (user_id,))
         return bool(len(result.fetchall()))
 
     def add_user(self, user_id, user_chat_id):
-        self.cursor.execute("INSERT INTO `user` (`tguserid`, `tguserchatid`) VALUES (?, ?)", (user_id, user_chat_id))
+        self.cursor.execute("INSERT INTO `users` (`usertgid`, `userchatid`) VALUES (?, ?)", (user_id, user_chat_id))
         return self.conn.commit()
 
-    def add_true_answer(self, user_id):
-        self.cursor.execute("SELECT `rightAnswers` FROM `user` WHERE `tguserid` = ?", (user_id,))
+    def add_true_survansw(self, user_id):
+        self.cursor.execute("SELECT `survmodeRight` FROM `users` WHERE `usertgid` = ?", (user_id,))
         result = self.cursor.fetchone()
         if result:
             oldValue = result[0]
             newValue = oldValue + 1
-            self.cursor.execute("UPDATE `user` SET `rightAnswers` = ? WHERE `tguserid` = ?", (newValue, user_id))
+            self.cursor.execute("UPDATE `users` SET `survmodeRight` = ? WHERE `usertgid` = ?", (newValue, user_id))
             self.conn.commit()
         else:
-            print(f"User with tguserid {user_id} not found in the database.")
+            print(f"User with userId {user_id} not found in the database.")
 
-    def add_wrong_answer(self, user_id):
-        self.cursor.execute("SELECT `wrongAnswers` FROM `user` WHERE `tguserid` = ?", (user_id,))
+    def add_wrong_surwansw(self, user_id):
+        self.cursor.execute("SELECT `survModeWrong` FROM `users` WHERE `usertgid` = ?", (user_id,))
         result = self.cursor.fetchone()
         if result:
             oldValue = result[0]
             newValue = oldValue + 1
-            self.cursor.execute("UPDATE `user` SET `wrongAnswers` = ? WHERE `tguserid` = ?", (newValue, user_id))
+            self.cursor.execute("UPDATE `users` SET `survModeWrong` = ? WHERE `usertgid` = ?", (newValue, user_id))
             self.conn.commit()
         else:
-            print(f"User with tguserid {user_id} not found in the database.")
+            print(f"User with userId {user_id} not found in the database.")
 
-    def get_true_count(self, user_id):
-        self.cursor.execute("SELECT `rightAnswers` FROM `user` WHERE `tguserid` = ?", (user_id,))
+    def get_true_srvc(self, user_id):
+        self.cursor.execute("SELECT `survmodeRight` FROM `users` WHERE `usertgid` = ?", (user_id,))
         result = self.cursor.fetchone()
         if result:
             return result[0]
         else:
-            print(f"User with tguserid {user_id} not found in the database.")
+            print(f"User with userId {user_id} not found in the database.")
 
-    def get_wrong_count(self, user_id):
-        self.cursor.execute("SELECT `wrongAnswers` FROM `user` WHERE `tguserid` = ?", (user_id,))
+    def get_wrong_srvc(self, user_id):
+        self.cursor.execute("SELECT `survModeWrong` FROM `users` WHERE `usertgid` = ?", (user_id,))
         result = self.cursor.fetchone()
         if result:
             return result[0]
         else:
-            print(f"User with tguserid {user_id} not found in the database.")
+            print(f"User with userId {user_id} not found in the database.")
+
+    def get_lives_mode(self, user_id):
+        self.cursor.execute("SELECT `livesRecord` FROM `users` WHERE `usertgid` = ?", (user_id,))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]
+        else:
+            print(f"User with userId {user_id} not found in the database.")
 
     def refresh_the_stats(self, user_id):
-        self.cursor.execute("UPDATE user SET `wrongAnswers` = 0, `rightAnswers` = 0 WHERE `tguserid` = ?", (user_id,))
+        self.cursor.execute("UPDATE users SET `survmodeRight` = 0, `survModeWrong` = 0, `livesRecord` = 0 WHERE `usertgid` = ?", (user_id,))
         self.conn.commit()
+
+    def livesModeRecord(self, user_id, streakCount):
+        self.cursor.execute("SELECT `livesRecord` FROM `users` WHERE `usertgid` = ?", (user_id,))
+        result = self.cursor.fetchone()
+        if result:
+            oldValue = result[0]
+            if (oldValue < streakCount):
+                self.cursor.execute("UPDATE `users` SET `livesRecord` = ? WHERE `usertgid` = ?", (streakCount, user_id))
+                self.conn.commit()
+                return True
+        else:
+            return False
+
+
 
     def close(self):
         self.conn.close()
